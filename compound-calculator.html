@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="초기금과 정기 납입금, 수익률을 입력해 복리 결과를 계산하는 무료 계산기">
+  <title>무료 복리 계산기</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101e31;--panel2:#14263e;--line:#29415f;--text:#edf6ff;--muted:#9eb1c8;--blue:#4da3ff;--green:#31d6a0;--yellow:#ffd166;--red:#ff6b78}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 20% 0,#15345a 0,#07111f 42%);color:var(--text);font-family:Pretendard,"Noto Sans KR","Malgun Gothic",sans-serif;min-height:100vh}
+    .wrap{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:32px 0 60px}.hero{margin-bottom:22px}.hero h1{font-size:clamp(27px,5vw,44px);margin:0 0 8px}.hero p{color:var(--muted);margin:0;line-height:1.7}
+    .grid{display:grid;grid-template-columns:390px 1fr;gap:18px}.card{background:rgba(16,30,49,.94);border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.24);padding:20px}.card h2{font-size:18px;margin:0 0 16px}
+    label{display:block;color:#c9d9eb;font-size:13px;font-weight:700;margin:13px 0 7px}.input-row{display:flex;gap:8px}.input-wrap{position:relative;flex:1}.input-wrap input{padding-right:52px}.unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
+    input,select,button{font:inherit}input,select{width:100%;background:#091728;border:1px solid #304b6b;color:var(--text);border-radius:12px;padding:12px 13px;outline:none}input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(77,163,255,.13)}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.check{display:flex;align-items:center;gap:8px;margin-top:14px;color:var(--muted);font-size:13px}.check input{width:auto;accent-color:var(--blue)}
+    .actions{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:18px}.primary,.secondary{border:0;border-radius:12px;padding:13px 16px;font-weight:800;cursor:pointer}.primary{background:linear-gradient(135deg,var(--blue),#745cff);color:#fff}.secondary{background:#223753;color:#dbeaff}.primary:hover,.secondary:hover{filter:brightness(1.08)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:var(--panel2);border:1px solid var(--line);border-radius:15px;padding:15px}.stat span{display:block;color:var(--muted);font-size:12px;margin-bottom:8px}.stat strong{font-size:clamp(17px,3vw,25px);word-break:break-all}.stat.green strong{color:var(--green)}.stat.yellow strong{color:var(--yellow)}
+    .barbox{margin:18px 0 10px}.barlabels{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:7px}.bar{height:15px;background:#22344c;border-radius:99px;overflow:hidden;display:flex}.bar .principal{background:#4d8dff}.bar .deposit{background:#735df0}.bar .interest{background:var(--green)}
+    .summary{color:var(--muted);font-size:13px;line-height:1.7;margin:12px 0 18px}.table-head{display:flex;align-items:center;justify-content:space-between;margin-top:16px}.table-head h2{margin:0}.table-wrap{overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:14px;max-height:420px}table{width:100%;border-collapse:collapse;min-width:570px}th,td{padding:12px 13px;text-align:right;border-bottom:1px solid #203650;font-size:13px}th{position:sticky;top:0;background:#172a43;color:#b9cbe0;z-index:1}th:first-child,td:first-child{text-align:left}tr:last-child td{border-bottom:0}tbody tr:hover{background:#13253c}
+    .note{margin-top:15px;background:#0a1727;border-left:4px solid var(--yellow);border-radius:10px;padding:12px 14px;color:#b9c9dc;font-size:12px;line-height:1.65}.danger{color:var(--red)}
+    @media(max-width:850px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}}@media(max-width:480px){.wrap{width:min(100% - 18px,1120px);padding-top:20px}.card{padding:15px;border-radius:16px}.two{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.stat:last-child{grid-column:auto}.actions{grid-template-columns:1fr}.secondary{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero"><h1>📈 무료 복리 계산기</h1><p>초기금과 정기 납입금을 넣으면 원금·수익·최종금액을 기간별로 계산합니다.</p></header>
+    <section class="grid">
+      <div class="card">
+        <h2>계산 조건</h2>
+        <label for="principal">초기금</label><div class="input-wrap"><input id="principal" type="number" min="0" step="10000" value="1000000"><span class="unit">원</span></div>
+        <div class="two">
+          <div><label for="contribution">추가 납입금</label><div class="input-wrap"><input id="contribution" type="number" min="0" step="10000" value="100000"><span class="unit">원</span></div></div>
+          <div><label for="contributionCycle">납입 주기</label><select id="contributionCycle"><option value="month">매월</option><option value="day">매일</option><option value="year">매년</option><option value="none">추가 납입 없음</option></select></div>
+        </div>
+        <div class="two">
+          <div><label for="rate">수익률</label><div class="input-wrap"><input id="rate" type="number" step="0.01" value="5"><span class="unit">%</span></div></div>
+          <div><label for="rateUnit">수익률 기준</label><select id="rateUnit"><option value="year">연 수익률</option><option value="month">월 수익률</option><option value="day">일 수익률</option></select></div>
+        </div>
+        <div class="two">
+          <div><label for="period">투자 기간</label><input id="period" type="number" min="1" step="1" value="10"></div>
+          <div><label for="periodUnit">기간 단위</label><select id="periodUnit"><option value="year">년</option><option value="month">개월</option><option value="day">일</option></select></div>
+        </div>
+        <div class="two">
+          <div><label for="compound">복리 적용</label><select id="compound"><option value="day">매일</option><option value="month" selected>매월</option><option value="year">매년</option></select></div>
+          <div><label for="tax">수익 세율</label><div class="input-wrap"><input id="tax" type="number" min="0" max="100" step="0.1" value="0"><span class="unit">%</span></div></div>
+        </div>
+        <label class="check"><input id="beginning" type="checkbox"> 추가 납입금을 각 주기 시작에 납입</label>
+        <div class="actions"><button class="primary" id="calculate">계산하기</button><button class="secondary" id="reset">초기화</button></div>
+        <div class="note"><b>안내</b><br>표시 결과는 입력값을 기반으로 한 단순 계산이며 실제 투자 수익을 보장하지 않습니다. 특히 일·월 수익률은 장기간 적용하면 금액이 매우 크게 계산될 수 있습니다.</div>
+      </div>
+      <div class="card">
+        <div class="stats">
+          <div class="stat"><span>총 납입원금</span><strong id="totalPaid">0원</strong></div>
+          <div class="stat green"><span>복리 수익</span><strong id="profit">0원</strong></div>
+          <div class="stat yellow"><span>최종 예상금액</span><strong id="finalValue">0원</strong></div>
+        </div>
+        <div class="barbox"><div class="barlabels"><span>초기금·추가납입·수익 구성</span><span id="returnRate">수익률 0%</span></div><div class="bar"><i class="principal" id="principalBar"></i><i class="deposit" id="depositBar"></i><i class="interest" id="interestBar"></i></div></div>
+        <p class="summary" id="summary">조건을 입력하고 계산하기를 눌러주세요.</p>
+        <div class="table-head"><h2>기간별 내역</h2><button class="secondary" id="csv">CSV 저장</button></div>
+        <div class="table-wrap"><table><thead><tr><th>시점</th><th>납입원금</th><th>복리 수익</th><th>예상금액</th></tr></thead><tbody id="rows"></tbody></table></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const $=id=>document.getElementById(id);let latest=[];
+    const fmt=n=>Number.isFinite(n)?Math.round(n).toLocaleString('ko-KR')+'원':'계산 범위 초과';
+    const periods={day:365,month:12,year:1};
+    function daysFrom(value,unit){return unit==='year'?value*365:unit==='month'?value*365/12:value}
+    function effectiveAnnual(rate,unit){const r=rate/100;if(unit==='year')return r;return Math.pow(1+r,periods[unit])-1}
+    function calculate(){
+      const initial=Math.max(0,+$('principal').value||0),add=Math.max(0,+$('contribution').value||0),addCycle=$('contributionCycle').value;
+      const rawRate=+$('rate').value||0,rateUnit=$('rateUnit').value,duration=Math.max(1,+$('period').value||1),durationUnit=$('periodUnit').value,compound=$('compound').value,tax=Math.min(100,Math.max(0,+$('tax').value||0))/100,beginning=$('beginning').checked;
+      const totalDays=Math.max(1,Math.round(daysFrom(duration,durationUnit))),steps=Math.max(1,Math.round(totalDays/(365/periods[compound]))),annual=effectiveAnnual(rawRate,rateUnit),stepRate=Math.pow(1+annual,1/periods[compound])-1;
+      if(!Number.isFinite(stepRate)||stepRate<=-1){alert('수익률 조건을 확인해주세요.');return}
+      const addEvery=addCycle==='none'?Infinity:Math.max(1,Math.round(periods[compound]/periods[addCycle]));let balance=initial,paid=initial;latest=[];
+      const snapshot=(step)=>{const elapsedDays=step*365/periods[compound],year=elapsedDays/365;latest.push({label:year<1?Math.round(elapsedDays)+'일':year.toFixed(year%1?1:0)+'년',paid,profit:balance-paid,balance})};
+      snapshot(0);let nextMark=1;
+      for(let i=1;i<=steps;i++){
+        const due=addCycle!=='none'&&i%addEvery===0;if(due&&beginning){balance+=add;paid+=add}
+        const gain=balance*stepRate;balance+=gain*(1-tax);
+        if(due&&!beginning){balance+=add;paid+=add}
+        const elapsed=i*365/periods[compound];if(elapsed>=nextMark*365||i===steps){snapshot(i);while(elapsed>=nextMark*365)nextMark++}
+        if(!Number.isFinite(balance)||balance>1e100){alert('결과가 너무 큽니다. 수익률이나 기간을 줄여주세요.');return}
+      }
+      const profit=balance-paid,added=Math.max(0,paid-initial),total=Math.max(balance,1),gainPct=paid?profit/paid*100:0;
+      $('totalPaid').textContent=fmt(paid);$('profit').textContent=fmt(profit);$('finalValue').textContent=fmt(balance);$('returnRate').textContent='원금 대비 '+gainPct.toLocaleString('ko-KR',{maximumFractionDigits:2})+'%';
+      $('principalBar').style.width=Math.max(0,initial/total*100)+'%';$('depositBar').style.width=Math.max(0,added/total*100)+'%';$('interestBar').style.width=Math.max(0,profit/total*100)+'%';
+      $('summary').innerHTML=`초기금 <b>${fmt(initial)}</b>으로 시작해 총 <b>${fmt(paid)}</b>을 납입하면, 입력한 조건에서 복리 수익은 <b>${fmt(profit)}</b>, 최종 예상금액은 <b>${fmt(balance)}</b>입니다.`;
+      $('rows').innerHTML=latest.map(x=>`<tr><td>${x.label}</td><td>${fmt(x.paid)}</td><td>${fmt(x.profit)}</td><td><b>${fmt(x.balance)}</b></td></tr>`).join('');
+    }
+    function saveCsv(){if(!latest.length){calculate();if(!latest.length)return}const lines=[['시점','납입원금','복리수익','예상금액'],...latest.map(x=>[x.label,Math.round(x.paid),Math.round(x.profit),Math.round(x.balance)])];const csv='\ufeff'+lines.map(r=>r.join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='복리계산결과.csv';a.click();URL.revokeObjectURL(a.href)}
+    $('calculate').addEventListener('click',calculate);$('csv').addEventListener('click',saveCsv);$('reset').addEventListener('click',()=>{document.querySelectorAll('input').forEach(x=>{if(x.type==='checkbox')x.checked=false});$('principal').value=1000000;$('contribution').value=100000;$('rate').value=5;$('period').value=10;$('tax').value=0;$('contributionCycle').value='month';$('rateUnit').value='year';$('periodUnit').value='year';$('compound').value='month';calculate()});
+    document.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',calculate));calculate();
+  </script>
+</body>
+</html>
